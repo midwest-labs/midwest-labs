@@ -1,6 +1,6 @@
 # midwest-labs
 
-A home engineering program: a house full of technology run the way a small company runs its systems. The lights,
+A home engineering program: a house full of technology is run the way a small company runs its systems. The lights,
 the network, the servers, a few useful apps and the recipes live in eleven organized, tested and documented
 repositories, so they keep working and are easy to improve.
 
