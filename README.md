@@ -1,88 +1,106 @@
 # midwest-labs
 
-A home engineering program: we run a house full of technology the way a small company runs its systems. The
-lights, the network, the servers, a few useful apps and the recipes all live in one organized, tested and
-documented place, so they keep working and are easy to improve.
+A home engineering program: a house full of technology is run the way a small company runs its systems. The lights,
+the network, the servers, a few useful apps and the recipes live in eleven organized, tested and documented
+repositories, so they keep working and are easy to improve.
 
-The owner decides what to build and what comes first. Claude does the testing, the automation and the tough
-second look, so every change is checked against the real thing before it counts as done.
+The owner leads all engineering work: what to build, how, and in what order. Claude does the testing, the automation
+and the tough second look, so every change is checked against the real system before it counts as done.
 
-## What we are doing
-> Next focus: Building a home grown platform operations ticketing and MCP-enabled service workflows for the homelab stack.
-- **Making the home smarter and more reliable.** Lighting, sensors and dashboards that are used every day.
-- **Keeping the network safe and always on.** Know what is connected, notice when something changes, and keep
-  the internet's address book working even if the main server goes down.
-- **Running our own servers.** One main server (the **1u**) hosts most things. A second machine (the **laptop**)
-  stands by as a backup and a lookout.
-- **Building small useful tools.** A stock research tracker, a smoking recipe site and a catalog of everything
-  we own.
-  Next for the catalog: upload a photo of an item to a page on our own network, and a local AI drafts the
-  record for review. Photos stay at home, never sent to an outside service.
-- **Being able to see it all.** Screenshots and dashboards that show how everything looks and whether it is healthy.
+## What has been built
+
+| Layer | What it does |
+|---|---|
+| **Home automation** | A production Home Assistant setup: lighting, climate, sports, weather and daily-use dashboards. A gallery repo photographs every dashboard view twice a day so screens can be reviewed without opening them. |
+| **Infrastructure** | One main server runs everything as code: a dashboard and data-collection stack, a media stack, and a monitoring stack (metrics, logs, alerts, image vulnerability scans). A second always-on machine keeps DNS up if the main one goes down and watches it from outside. |
+| **Security** | A home network scanner finds what is connected and reports what changed. Every repo is secret-scanned before commit and in CI. |
+| **Apps and data** | A stock research tracker, a smoking recipe site and an inventory of everything owned, one record per item. |
+| **Program** | A hub repo holds the rules, decisions and plans every other repo follows. Work is tracked on one backlog board. |
 
 ## How it fits together
 
 ```mermaid
 flowchart TB
-    owner["Owner<br/>sets goals and priorities"]
+    owner["Owner<br/>decides scope and priority"]
     claude["Claude<br/>tests, automates, reviews"]
     owner <--> claude
 
-    subgraph program["The program"]
-        hub["Hub<br/>shared rules, plans and notes"]
-        board["Backlog board<br/>what is next"]
-        landing["This page<br/>the big picture"]
+    subgraph change["How a change ships"]
+        direction LR
+        issue["Issue on the<br/>backlog board"] --> branch["Branch and<br/>pull request"]
+        branch --> ci["Automated checks<br/>secrets, code, images"]
+        ci --> deploy["Deploy:<br/>HA on merge, server via pull"]
     end
 
-    subgraph home["Smart home"]
-        house["Home automation<br/>lights, sensors, routines"]
-        gallery["Dashboard gallery<br/>screenshots of every screen"]
+    subgraph hosts["Where it runs"]
+        ha["Home Assistant<br/>the house"]
+        main["Main server<br/>dashboards, media,<br/>monitoring, build runners"]
+        backup["Second machine<br/>backup DNS and lookout"]
     end
 
-    subgraph servers["Servers"]
-        main["1u<br/>main server"]
-        laptop["Laptop<br/>backup server and lookout"]
+    subgraph watch["How it is watched"]
+        mon["Metrics, logs and<br/>health dashboards"]
+        alert["Alerts to the phone"]
+        feed["Alert feed:<br/>one issue per incident"]
     end
 
-    subgraph security["Network safety"]
-        scanner["Network scanner<br/>what is connected, what changed"]
-    end
+    docs["Hub and wikis<br/>rules, decisions, runbooks"]
 
-    subgraph apps["Apps and records"]
-        stocks["Stock research"]
-        smoke["Smokehouse recipes"]
-        inventory["Inventory<br/>everything we own"]
-    end
-
-    owner --> board
-    board --> hub
-    hub -. "rules and checks" .-> home
-    hub -. "rules and checks" .-> servers
-    hub -. "rules and checks" .-> security
-    hub -. "rules and checks" .-> apps
-    hub --> landing
-
-    gallery -. "photographs" .-> house
-    scanner --> main
-    stocks --> main
-    laptop -. "takes over DNS, watches from outside" .-> main
+    owner --> issue
+    claude --> branch
+    deploy --> ha
+    deploy --> main
+    main --> mon
+    ha --> mon
+    mon --> alert
+    alert --> feed
+    backup -. "watches from outside,<br/>second DNS" .-> main
+    docs -. "rules for every repo" .-> change
 ```
 
-The hub is the program's home base: it holds the rules every project follows and the notes on how things work. The
-backlog board holds the work to be done. Each project below it does one job, and the hub keeps them consistent.
+Every repo is a piece of one system. The hub sets the rules; the
+monitoring stack watches the hosts and the apps; an alert reaches the phone and is also recorded as an issue the
+owner can act on.
+
+## How it is managed
+
+- **One backlog.** Every piece of work is an issue on one board: epics hold features, features hold stories. No work
+  happens without one, and it moves from backlog to sprint to done.
+- **Every change is a pull request.** Work happens on a branch, never on `main`. Commits are signed.
+- **Checks run before anything is trusted.** A fail-closed scan covers secrets (full history), code, dependencies
+  and container images. "Fail-closed" means a check that cannot verify blocks instead of skipping.
+- **Testing is not optional.** A change is validated against the real system, not just "it should work". The pull
+  request says what was exercised and what was not.
+- **Documentation moves with the change.** Rules, decisions and runbooks update in the same pull request, and the
+  wikis rebuild on their own. Eleven written decision records explain why the big choices were made.
+- **Claude has a defined role.** It tests, automates and challenges the work. It does not decide scope or
+  architecture, and it works under the owner's direction.
+
+## How it is maintained
+
+- **Health at a glance.** Dashboards show the state of every stack. Alerts reach the owner's phone, and each incident
+  also becomes a record, the input for a Claude triage routine now being built.
+- **The server updates itself from `main`.** It pulls its configuration every few minutes and restarts what changed.
+  Dependency updates arrive monthly in grouped pull requests.
+- **Security hygiene on a schedule.** Container images are scanned weekly and a network scan flags new devices.
+- **Resilience.** DNS has a second server, and databases and dashboards are backed up on a schedule.
+- **Lessons are written down.** A case study records the decisions and mistakes made while building this, and feeds
+  a planned training curriculum for non-engineers building with AI.
 
 ## Where the work is headed
 
 | Focus | Why it matters |
 |---|---|
-| **Smart lighting** | The largest open backlog; lights are in daily use |
-| **Monitoring dashboards** | Dashboards can only be judged by looking at them |
-| **Backup server and DNS** | The internet's address book runs on one machine today; it needs a second |
-| **Network scanner** | Know what is on the home network and when it changes |
-| **Server health** | Keep the 1u healthy |
-| **Program and process** | See all the work in one place and avoid rabbit holes |
+| **Operations ticketing and MCP-enabled workflows** | Let alerts, tickets and runbooks work together, with Claude triaging what the alert feed collects |
+| **Safe host automation** | Owner-triggered, named actions on the main server instead of copy-and-paste steps |
+| **Runtime and runner upgrades** | Keep languages, base images and the build machines current |
+| **Dashboards worth looking at** | Fewer, clearer screens in daily use |
+| **Training curriculum** | Turn these working patterns into modules others can follow |
 
-## Not decided yet
+## Honest limits
 
-- Whether the program adopts a heavier review process or stays light.
-- How this page's summary refreshes automatically; until then it is updated by hand.
+- It is a solo program, so review is the owner's habit rather than a team gate.
+- Some steps stay manual on purpose: live changes are run by the owner.
+- Whether to adopt a heavier review process is undecided, deliberately.
+
+This page is the big picture and is updated by hand. The repositories themselves are private.
