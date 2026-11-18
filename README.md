@@ -29,7 +29,7 @@ flowchart TB
         direction LR
         issue["Issue on the<br/>backlog board"] --> branch["Branch and<br/>pull request"]
         branch --> ci["Automated checks<br/>secrets, code, images"]
-        ci --> deploy["Deploy:<br/>HA on merge, server by pull"]
+        ci --> deploy["Deploy:<br/>HA on merge, server via pull"]
     end
 
     subgraph hosts["Where it runs"]
@@ -59,7 +59,7 @@ flowchart TB
 ```
 
 Every repo is a piece of one system. The hub sets the rules; the
-monitoring stack watches the hosts and the apps; a firing alert reaches the phone and is also recorded as an issue the
+monitoring stack watches the hosts and the apps; an alert reaches the phone and is also recorded as an issue the
 owner can act on.
 
 ## How it is managed
